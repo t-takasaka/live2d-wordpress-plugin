@@ -1,8 +1,7 @@
 <?php
 /*
-Plugin Name: Live2D WordPress Plugin
+ Plugin Name: Live2D WordPress Plugin
 */
-
 class Live2D{
 	function __construct(){
 		//Init path
@@ -27,27 +26,33 @@ class Live2D{
 		//Load javascript
 		if(!strstr($_SERVER["REQUEST_URI"], 'wp-admin')){
 			wp_enqueue_script('pixi', 'https://cdnjs.cloudflare.com/ajax/libs/pixi.js/4.6.1/pixi.min.js', '', '1.0', false);
+
 			//By including below library in your project you agree to http://live2d.com/eula/live2d-proprietary-software-license-agreement_en.html
+			//下記のライブラリを使用する際は次のライセンスに同意する必要があります http://live2d.com/eula/live2d-proprietary-software-license-agreement_jp.html
 			wp_enqueue_script('live2dcubismcore', 'https://s3-ap-northeast-1.amazonaws.com/cubism3.live2d.com/sdk/js_eap/live2dcubismcore.min.js', '', '1.0', false);
-			wp_enqueue_script('live2dcubismframework', get_stylesheet_directory_uri() . '/js/live2dcubismframework.js', '', '1.0', false);
-			wp_enqueue_script('live2dcubismpixi', get_stylesheet_directory_uri() . '/js/live2dcubismpixi.js', '', '1.0', false);
-			wp_enqueue_script('pixiKoharu', get_stylesheet_directory_uri() . '/js/pixiKoharu.js', '', '1.0', false);
+
+			$plugin_url = plugin_dir_url( __FILE__ );
+			wp_enqueue_script('live2dcubismframework', $plugin_url . 'js/live2dcubismframework.js', '', '1.0', false);
+			wp_enqueue_script('live2dcubismpixi', $plugin_url . 'js/live2dcubismpixi.js', '', '1.0', false);
+			wp_enqueue_script('pixiKoharu', $plugin_url . 'js/pixiKoharu.js', '', '1.0', false);
 		}
 		add_action('admin_menu', array($this, 'add_pages'));
 
 		//Set options
 		$opt = get_option('live2d_options');
-		$path = get_stylesheet_directory() . "/";
+		$plugin_url = plugin_dir_url(__FILE__);
+		$plugin_path = plugin_dir_path(__FILE__);
+
 		print("<script>");
-		print("var theme_path = '" . get_stylesheet_directory_uri() . "/';\n");
-		if(isset($opt['moc_path']) && !empty($opt['moc_path']) && file_exists($path . $opt['moc_path'])){ print("var moc_path = '" . $opt['moc_path'] . "';\n"); }
-		if(isset($opt['tex1_path']) && !empty($opt['tex1_path']) && file_exists($path . $opt['tex1_path'])){ print("var tex1_path = '" . $opt['tex1_path'] . "';\n"); }
-		if(isset($opt['tex2_path']) && !empty($opt['tex2_path']) && file_exists($path . $opt['tex2_path'])){ print("var tex2_path = '" . $opt['tex2_path'] . "';\n"); }
-		if(isset($opt['tex3_path']) && !empty($opt['tex3_path']) && file_exists($path . $opt['tex3_path'])){ print("var tex3_path = '" . $opt['tex3_path'] . "';\n"); }
-		if(isset($opt['mot1_path']) && !empty($opt['mot1_path']) && file_exists($path . $opt['mot1_path'])){ print("var mot1_path = '" . $opt['mot1_path'] . "';\n"); }
-		if(isset($opt['mot2_path']) && !empty($opt['mot2_path']) && file_exists($path . $opt['mot2_path'])){ print("var mot2_path = '" . $opt['mot2_path'] . "';\n"); }
-		if(isset($opt['mot3_path']) && !empty($opt['mot3_path']) && file_exists($path . $opt['mot3_path'])){ print("var mot3_path = '" . $opt['mot3_path'] . "';\n"); }
-		if(isset($opt['phy_path']) && !empty($opt['phy_path']) && file_exists($path . $opt['phy_path'])){ print("var phy_path = '" . $opt['phy_path'] . "';\n"); }
+		print("var theme_path = '" . $plugin_url . "';\n");
+		if(isset($opt['moc_path']) && !empty($opt['moc_path']) && file_exists($plugin_path . $opt['moc_path'])){ print("var moc_path = '" . $opt['moc_path'] . "';\n"); }
+		if(isset($opt['tex1_path']) && !empty($opt['tex1_path']) && file_exists($plugin_path . $opt['tex1_path'])){ print("var tex1_path = '" . $opt['tex1_path'] . "';\n"); }
+		if(isset($opt['tex2_path']) && !empty($opt['tex2_path']) && file_exists($plugin_path . $opt['tex2_path'])){ print("var tex2_path = '" . $opt['tex2_path'] . "';\n"); }
+		if(isset($opt['tex3_path']) && !empty($opt['tex3_path']) && file_exists($plugin_path . $opt['tex3_path'])){ print("var tex3_path = '" . $opt['tex3_path'] . "';\n"); }
+		if(isset($opt['mot1_path']) && !empty($opt['mot1_path']) && file_exists($plugin_path . $opt['mot1_path'])){ print("var mot1_path = '" . $opt['mot1_path'] . "';\n"); }
+		if(isset($opt['mot2_path']) && !empty($opt['mot2_path']) && file_exists($plugin_path . $opt['mot2_path'])){ print("var mot2_path = '" . $opt['mot2_path'] . "';\n"); }
+		if(isset($opt['mot3_path']) && !empty($opt['mot3_path']) && file_exists($plugin_path . $opt['mot3_path'])){ print("var mot3_path = '" . $opt['mot3_path'] . "';\n"); }
+		if(isset($opt['phy_path']) && !empty($opt['phy_path']) && file_exists($plugin_path . $opt['phy_path'])){ print("var phy_path = '" . $opt['phy_path'] . "';\n"); }
 		print("var attach_tag = '" . ((isset($opt['attach_tag']) && !empty($opt['attach_tag'])) ? $opt['attach_tag'] : ".entry-header") . "';\n"); 
 		print("var pos_x = " . ((isset($opt['pos_x']) && !empty($opt['pos_x'])) ? $opt['pos_x'] : "0") . ";\n"); 
 		print("var pos_y = " . ((isset($opt['pos_y']) && !empty($opt['pos_y'])) ? $opt['pos_y'] : "0") . ";\n"); 
@@ -74,7 +79,7 @@ class Live2D{
 <?php
 			wp_nonce_field('live2d_action', 'live2d_nonce_filed');
 			$opt = get_option('live2d_options');
-			$moc_path = isset($opt['moc_path']) ? $opt['moc_path']: null;    //assets/Koharu/Koharu.moc3
+			$moc_path = isset($opt['moc_path']) ? $opt['moc_path']: null;
 			$tex1_path = isset($opt['tex1_path']) ? $opt['tex1_path']: null;
 			$tex2_path = isset($opt['tex2_path']) ? $opt['tex2_path']: null;
 			$tex3_path = isset($opt['tex3_path']) ? $opt['tex3_path']: null;
